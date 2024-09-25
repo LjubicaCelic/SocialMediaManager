@@ -141,8 +141,8 @@ public class SocialMediaGUI extends JFrame {
                 return null;
             }
 
-            if (name.isEmpty() || city.isEmpty()){
-                JOptionPane.showMessageDialog(this,"Please fill mandatory fields!");
+            if (name.isEmpty() || city.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill mandatory fields!");
                 return null;
             }
 
