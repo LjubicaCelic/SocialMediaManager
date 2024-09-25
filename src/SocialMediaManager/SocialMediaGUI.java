@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class SocialMediaGUI extends JFrame {
@@ -30,6 +31,9 @@ public class SocialMediaGUI extends JFrame {
     private JButton showEarningsFromTiktokButton;
     private JButton findUserByNameButton;
 
+    private static final int minBirthYear = 1900;
+    private static final int maxBirthYear = LocalDate.now().getYear();
+
     Facebook facebook = new Facebook(new ArrayList<>());
     Instagram instagram = new Instagram(new ArrayList<>());
     TikTok tiktok = new TikTok(new ArrayList<>());
@@ -48,34 +52,29 @@ public class SocialMediaGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 User user = newUser();
                 boolean addedToAnyMedia = false;
-                if (facebookCheckBox.isSelected()) {
-                    facebook.addUser(newUser());
-                    JOptionPane.showMessageDialog(SocialMediaGUI.this, "User added to Facebook!");
-                    addedToAnyMedia = true;
-                }
-                if (instagramCheckBox.isSelected()) {
-                    instagram.addUser(newUser());
-                    JOptionPane.showMessageDialog(SocialMediaGUI.this, "User added to Instagram!");
-                    addedToAnyMedia = true;
-                }
-                if (tikTokCheckBox.isSelected()) {
-                    tiktok.addUser(newUser());
-                    JOptionPane.showMessageDialog(SocialMediaGUI.this, "User added to TikTok!");
-                    addedToAnyMedia = true;
-                }
-                if (!addedToAnyMedia) {
-                    JOptionPane.showMessageDialog(SocialMediaGUI.this, "Please select a social network to add the user.");
-                }
 
+                if (user != null) {
+                    if (facebookCheckBox.isSelected()) {
+                        facebook.addUser(user);
+                        JOptionPane.showMessageDialog(SocialMediaGUI.this, "User added to Facebook!");
+                        addedToAnyMedia = true;
+                    }
+                    if (instagramCheckBox.isSelected()) {
+                        instagram.addUser(user);
+                        JOptionPane.showMessageDialog(SocialMediaGUI.this, "User added to Instagram!");
+                        addedToAnyMedia = true;
+                    }
+                    if (tikTokCheckBox.isSelected()) {
+                        tiktok.addUser(user);
+                        JOptionPane.showMessageDialog(SocialMediaGUI.this, "User added to TikTok!");
+                        addedToAnyMedia = true;
+                    }
+                    if (!addedToAnyMedia) {
+                        JOptionPane.showMessageDialog(SocialMediaGUI.this, "Please select a social network to add the user.");
+                    }
+                }
                 if (addedToAnyMedia) {
-                    txtFullName.setText("");
-                    txtBirthYear.setText("");
-                    txtNumberOfPhotos.setText("");
-                    txtNumberOfVideos.setText("");
-                    txtCity.setText("");
-                    facebookCheckBox.setSelected(false);
-                    instagramCheckBox.setSelected(false);
-                    tikTokCheckBox.setSelected(false);
+                    resetFields();
                 }
             }
         });
@@ -129,6 +128,42 @@ public class SocialMediaGUI extends JFrame {
         });
     }
 
+    private User newUser() {
+        try {
+            String name = txtFullName.getText();
+            String city = txtCity.getText();
+            int birthYear = Integer.parseInt(txtBirthYear.getText());
+            int numberOfVideos = Integer.parseInt(txtNumberOfVideos.getText());
+            int numberOfPhotos = Integer.parseInt(txtNumberOfPhotos.getText());
+
+            if (birthYear < minBirthYear || birthYear > maxBirthYear) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid birth year between 1900 and 2024.");
+                return null;
+            }
+
+            if (name.isEmpty() || city.isEmpty()){
+                JOptionPane.showMessageDialog(this,"Please fill mandatory fields!");
+                return null;
+            }
+
+            return new User(name, birthYear, numberOfVideos, numberOfPhotos, city);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter valid numbers for birth year, photos, and videos.");
+            return null;
+        }
+    }
+
+    private void resetFields() {
+        txtFullName.setText("");
+        txtBirthYear.setText("");
+        txtNumberOfPhotos.setText("");
+        txtNumberOfVideos.setText("");
+        txtCity.setText("");
+        facebookCheckBox.setSelected(false);
+        instagramCheckBox.setSelected(false);
+        tikTokCheckBox.setSelected(false);
+    }
+
     private void showAllUsers() {
         outputArea.setText("");
         outputArea.append(facebook + "\n");
@@ -136,30 +171,11 @@ public class SocialMediaGUI extends JFrame {
         outputArea.append(tiktok + "\n");
     }
 
-    private User newUser() {
-        try {
-            String name = txtFullName.getText();
-            String residence = txtCity.getText();
-            int birthYear = Integer.parseInt(txtBirthYear.getText());
-            if (birthYear < 1900 || birthYear > 2024) {
-                JOptionPane.showMessageDialog(this, "Please enter a valid birth year between 1900 and 2024.");
-                return null;
-            }
-            int numberOfVideos = Integer.parseInt(txtNumberOfVideos.getText());
-            int numberOfPhotos = Integer.parseInt(txtNumberOfPhotos.getText());
-            return new User(name, birthYear, numberOfVideos, numberOfPhotos, residence);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid numbers for birth year, photos, and videos.");
-            return null;
-        }
-    }
-
     private void removeUnderageUsers() {
         instagram.removeUnderageUsers();
         facebook.removeUnderageUsers();
         JOptionPane.showMessageDialog(this, "Underage users removed from Instagram and Facebook");
     }
-
 
     private void createUIComponents() {
         socialMedia = new JPanel();
